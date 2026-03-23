@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verifica Kòsmos Card — Elcardiano</title>
+<meta name="description" content="Verifica l'autenticità della tua Kòsmos Card Patron di Elcardiano.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Raleway:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #06060b;
+    --bg-surface: #0c0c14;
+    --bg-card: #10101a;
+    --border-subtle: rgba(255,255,255,0.06);
+    --text-primary: #e8e4f0;
+    --text-secondary: rgba(232,228,240,0.5);
+    --text-muted: rgba(232,228,240,0.25);
+    --gold: #c9a961;
+    --gold-bright: #f0d78c;
+    --rame: #d4915a;
+    --argento: #c0c5cf;
+    --oro: #d4af37;
+    --platino: #e5e4e2;
+    --elettro: #00b4ff;
+    --success: #34d399;
+    --error: #f87171;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Raleway', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ---- Ambient background ---- */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%; left: -20%;
+    width: 80%; height: 80%;
+    background: radial-gradient(ellipse, rgba(201,169,97,0.04) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    bottom: -30%; right: -20%;
+    width: 70%; height: 70%;
+    background: radial-gradient(ellipse, rgba(0,180,255,0.025) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ---- Grain overlay ---- */
+  .grain {
+    position: fixed;
+    inset: 0;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 128px;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  /* ---- Main layout ---- */
+  .page-wrapper {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 60px 20px 40px;
+  }
+
+  /* ---- Header ---- */
+  .brand {
+    text-align: center;
+    margin-bottom: 50px;
+    animation: fadeDown 0.8s ease-out;
+  }
+
+  .brand-name {
+    font-family: 'Cinzel', serif;
+    font-weight: 400;
+    font-size: 0.7rem;
+    letter-spacing: 0.5em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .page-title {
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, var(--gold), var(--gold-bright), var(--gold));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+  }
+
+  .page-subtitle {
+    font-size: 0.8rem;
+    font-weight: 400;
+    color: var(--text-secondary);
+    letter-spacing: 0.12em;
+  }
+
+  /* ---- Search area ---- */
+  .search-container {
+    width: 100%;
+    max-width: 520px;
+    animation: fadeUp 0.8s ease-out 0.15s both;
+  }
+
+  .search-box {
+    position: relative;
+    margin-bottom: 14px;
+  }
+
+  .search-input {
+    width: 100%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 18px 60px 18px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+    text-transform: uppercase;
+  }
+
+  .search-input::placeholder {
+    font-family: 'Raleway', sans-serif;
+    font-weight: 400;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    color: var(--text-muted);
+    text-transform: none;
+  }
+
+  .search-input:focus {
+    border-color: rgba(201,169,97,0.4);
+    box-shadow: 0 0 30px rgba(201,169,97,0.06);
+  }
+
+  .search-btn {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    background: linear-gradient(135deg, rgba(201,169,97,0.15), rgba(201,169,97,0.08));
+    border: 1px solid rgba(201,169,97,0.2);
+    border-radius: 9px;
+    color: var(--gold);
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.25s;
+  }
+
+  .search-btn:hover {
+    background: linear-gradient(135deg, rgba(201,169,97,0.25), rgba(201,169,97,0.15));
+    box-shadow: 0 0 20px rgba(201,169,97,0.1);
+  }
+
+  .search-hint {
+    text-align: center;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    letter-spacing: 0.08em;
+  }
+
+  .search-hint span {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text-secondary);
+  }
+
+  /* ---- Result card ---- */
+  .result-area {
+    width: 100%;
+    max-width: 520px;
+    margin-top: 36px;
+    min-height: 60px;
+  }
+
+  .result-card {
+    background: var(--bg-card);
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    overflow: hidden;
+    animation: resultAppear 0.5s ease-out;
+  }
+
+  @keyframes resultAppear {
+    from { opacity: 0; transform: translateY(12px) scale(0.98); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  /* Status bar at top of result */
+  .result-status {
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .result-status.valid {
+    background: rgba(52,211,153,0.08);
+    color: var(--success);
+    border-bottom: 1px solid rgba(52,211,153,0.12);
+  }
+
+  .result-status.invalid {
+    background: rgba(248,113,113,0.08);
+    color: var(--error);
+    border-bottom: 1px solid rgba(248,113,113,0.12);
+  }
+
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .valid .status-dot {
+    background: var(--success);
+    box-shadow: 0 0 8px rgba(52,211,153,0.4);
+    animation: pulse-green 2s ease-in-out infinite;
+  }
+
+  .invalid .status-dot {
+    background: var(--error);
+    box-shadow: 0 0 8px rgba(248,113,113,0.4);
+  }
+
+  @keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  /* Result body */
+  .result-body {
+    padding: 24px 20px 20px;
+  }
+
+  .result-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .result-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .result-field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .result-field.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .field-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .field-value {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .tier-badge-inline {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 700;
+    font-size: 0.95rem;
+  }
+
+  .tier-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  /* Invalid result */
+  .result-invalid-body {
+    padding: 30px 20px;
+    text-align: center;
+  }
+
+  .invalid-icon {
+    font-size: 2rem;
+    margin-bottom: 12px;
+    opacity: 0.6;
+  }
+
+  .invalid-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--error);
+    margin-bottom: 8px;
+    letter-spacing: 0.05em;
+  }
+
+  .invalid-text {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  /* ---- Public list section ---- */
+  .list-section {
+    width: 100%;
+    max-width: 620px;
+    margin-top: 60px;
+    animation: fadeUp 0.8s ease-out 0.3s both;
+  }
+
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .list-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--gold);
+  }
+
+  .list-count {
+    font-size: 0.65rem;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+  }
+
+  .patron-table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .patron-table thead th {
+    font-size: 0.58rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-subtle);
+  }
+
+  .patron-table thead th:last-child {
+    text-align: right;
+  }
+
+  .patron-table tbody tr {
+    transition: background 0.2s;
+  }
+
+  .patron-table tbody tr:hover {
+    background: rgba(255,255,255,0.015);
+  }
+
+  .patron-table tbody td {
+    padding: 10px 12px;
+    font-size: 0.78rem;
+    border-bottom: 1px solid rgba(255,255,255,0.025);
+  }
+
+  .patron-table tbody td:first-child {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    font-size: 0.75rem;
+  }
+
+  .patron-table tbody td:last-child {
+    text-align: right;
+    color: var(--text-secondary);
+  }
+
+  .tier-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid;
+    letter-spacing: 0.05em;
+  }
+
+  .tier-pill-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+
+  /* ---- Footer ---- */
+  .page-footer {
+    margin-top: 60px;
+    text-align: center;
+    padding: 20px;
+    animation: fadeUp 0.8s ease-out 0.4s both;
+  }
+
+  .footer-line {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--text-muted);
+    text-transform: uppercase;
+  }
+
+  .footer-line a {
+    color: var(--gold);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .footer-line a:hover { color: var(--gold-bright); }
+
+  /* ---- Loading state ---- */
+  .loading-spinner {
+    display: inline-block;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--border-subtle);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-message {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    padding: 20px;
+  }
+
+  /* ---- Animations ---- */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---- URL param highlight ---- */
+  .highlight-row {
+    background: rgba(201,169,97,0.06) !important;
+  }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 480px) {
+    .page-wrapper { padding: 40px 16px 30px; }
+    .result-fields { grid-template-columns: 1fr; gap: 12px; }
+    .patron-table thead th, .patron-table tbody td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="grain"></div>
+
+<div class="page-wrapper">
+
+  <header class="brand">
+    <div class="brand-name">Elcardiano</div>
+    <h1 class="page-title">Verifica Kòsmos Card</h1>
+    <p class="page-subtitle">Controlla l'autenticità di una Patron Card</p>
+  </header>
+
+  <div class="search-container">
+    <div class="search-box">
+      <input 
+        type="text" 
+        class="search-input" 
+        id="codeInput"
+        placeholder="Inserisci il codice a 7 caratteri"
+        maxlength="7"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <button class="search-btn" id="searchBtn" title="Verifica">&#x2192;</button>
+    </div>
+    <p class="search-hint">Inserisci il codice che trovi sulla tua Kòsmos Card — es. <span>K7X9M2W</span></p>
+  </div>
+
+  <div class="result-area" id="resultArea"></div>
+
+  <section class="list-section" id="listSection">
+    <div class="list-header">
+      <span class="list-title">Patron Attivi</span>
+      <span class="list-count" id="listCount"></span>
+    </div>
+    <div id="listBody">
+      <div class="loading-message">
+        <span class="loading-spinner"></span>
+        Caricamento registro patron...
+      </div>
+    </div>
+  </section>
+
+  <footer class="page-footer">
+    <p class="footer-line">Kòsmos Patron System &mdash; <a href="https://www.patreon.com/elcardiano" target="_blank" rel="noopener">patreon.com/elcardiano</a></p>
+  </footer>
+
+</div>
+
+<script>
+// ============================================================
+// CONFIGURATION
+// ============================================================
+// The patrons.json file must be in the same directory as this HTML.
+// Update it manually or via automation whenever the patron list changes.
+const DATA_URL = './patrons.json';
+
+// Tier metadata
+const TIERS = {
+  R: { name: 'Rame',    color: '#d4915a', borderColor: 'rgba(212,145,90,0.35)' },
+  A: { name: 'Argento', color: '#c0c5cf', borderColor: 'rgba(192,197,207,0.3)' },
+  O: { name: 'Oro',     color: '#d4af37', borderColor: 'rgba(212,175,55,0.35)' },
+  P: { name: 'Platino', color: '#e5e4e2', borderColor: 'rgba(229,228,226,0.25)' },
+  E: { name: 'Elettro', color: '#00b4ff', borderColor: 'rgba(0,180,255,0.35)' }
+};
+
+const TIER_ORDER = { R: 1, A: 2, O: 3, P: 4, E: 5 };
+
+// ============================================================
+// STATE
+// ============================================================
+let patronsData = [];
+
+// ============================================================
+// LOAD DATA
+// ============================================================
+async function loadPatrons() {
+  try {
+    const res = await fetch(DATA_URL);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    patronsData = await res.json();
+    renderList();
+    // Check URL param
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      document.getElementById('codeInput').value = code.toUpperCase();
+      verifyCode(code.toUpperCase());
+    }
+  } catch (err) {
+    document.getElementById('listBody').innerHTML = `
+      <div class="loading-message" style="color: var(--error);">
+        Impossibile caricare il registro patron. Verifica che il file patrons.json sia presente.
+      </div>`;
+    console.error('Errore caricamento patrons.json:', err);
+  }
+}
+
+// ============================================================
+// RENDER PUBLIC LIST
+// ============================================================
+function renderList() {
+  const activePatrons = patronsData
+    .filter(p => p.active)
+    .sort((a, b) => {
+      const tierDiff = (TIER_ORDER[b.tier] || 0) - (TIER_ORDER[a.tier] || 0);
+      if (tierDiff !== 0) return tierDiff;
+      return (b.months || 0) - (a.months || 0);
+    });
+
+  document.getElementById('listCount').textContent = `${activePatrons.length} patron attivi`;
+
+  if (activePatrons.length === 0) {
+    document.getElementById('listBody').innerHTML = `
+      <div class="loading-message">Nessun patron attivo al momento.</div>`;
+    return;
+  }
+
+  const rows = activePatrons.map(p => {
+    const t = TIERS[p.tier] || TIERS.R;
+    return `<tr data-code="${p.code}">
+      <td>${p.code}</td>
+      <td>
+        <span class="tier-pill" style="color:${t.color}; border-color:${t.borderColor};">
+          <span class="tier-pill-dot" style="background:${t.color};"></span>
+          ${t.name}
+        </span>
+      </td>
+      <td>${p.months || 1} ${(p.months || 1) === 1 ? 'mese' : 'mesi'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('listBody').innerHTML = `
+    <table class="patron-table">
+      <thead>
+        <tr>
+          <th>Codice</th>
+          <th>Tier</th>
+          <th style="text-align:right">Anzianità</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+// ============================================================
+// VERIFY CODE
+// ============================================================
+function verifyCode(code) {
+  const clean = code.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+  if (clean.length !== 7) {
+    showInvalid('Formato non valido', 'Il codice deve essere composto da esattamente 7 caratteri alfanumerici. Lo trovi stampato sulla tua Kòsmos Card sotto la voce "Codice Identificativo".');
+    return;
+  }
+
+  const patron = patronsData.find(p => p.code.toUpperCase() === clean);
+
+  if (!patron) {
+    showInvalid('Codice non trovato', `Il codice <strong>${clean}</strong> non corrisponde a nessun patron registrato. Se hai appena effettuato l'abbonamento, il codice potrebbe non essere ancora stato aggiunto al registro.`);
+    return;
+  }
+
+  if (!patron.active) {
+    showInactive(patron, clean);
+    return;
+  }
+
+  showValid(patron, clean);
+  highlightInList(clean);
+}
+
+function showValid(patron, code) {
+  const t = TIERS[patron.tier] || TIERS.R;
+  const fullCode = `ELC-${code}-${patron.tier}-${patron.period || '----'}`;
+
+  document.getElementById('resultArea').innerHTML = `
+    <div class="result-card" style="border-color: ${t.borderColor};">
+      <div class="result-status valid">
+        <span class="status-dot"></span>
+        Kòsmos Card Autenticata
+      </div>
+      <div class="result-body">
+        <div class="result-code" style="color: ${t.color};">${fullCode}</div>
+        <div class="result-fields">
+          <div class="result-field">
+            <span class="field-label">Tier Attuale</span>
+            <span class="field-value">
+              <span class="tier-badge-inline" style="color: ${t.color};">
+                <span class="tier-dot" style="background: ${t.color}; box-shadow: 0 0 8px ${t.borderColor};"></span>
+                Tier ${['','I','II','III','IV','V'][TIER_ORDER[patron.tier]]} — ${t.name}
+              </span>
+            </span>
+          </div>
+          <div class="result-field">
+            <span class="field-label">Stato</span>
+            <span class="field-value" style="color: var(--success);">✓ Attivo</span>
+          </div>
+          <div class="result-field">
+            <span class="field-label">Mesi Consecutivi</span>
+            <span class="field-value">${patron.months || 1}</span>
+          </div>
+          <div class="result-field">
+            <span class="field-label">Membro Dal</span>
+            <span class="field-value">${patron.since || '—'}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function showInactive(patron, code) {
+  const t = TIERS[patron.tier] || TIERS.R;
+
+  document.getElementById('resultArea').innerHTML = `
+    <div class="result-card" style="border-color: rgba(248,113,113,0.15);">
+      <div class="result-status invalid">
+        <span class="status-dot"></span>
+        Abbonamento Non Attivo
+      </div>
+      <div class="result-invalid-body">
+        <div class="invalid-icon">⏸</div>
+        <div class="invalid-title">Patron Riconosciuto — Abbonamento Scaduto</div>
+        <p class="invalid-text">
+          Il codice <strong>${code}</strong> è registrato come ex-patron (ultimo tier: ${t.name}).
+          L'abbonamento non risulta attualmente attivo. Se hai rinnovato di recente, il registro potrebbe
+          non essere ancora aggiornato.
+        </p>
+      </div>
+    </div>`;
+}
+
+function showInvalid(title, message) {
+  document.getElementById('resultArea').innerHTML = `
+    <div class="result-card" style="border-color: rgba(248,113,113,0.15);">
+      <div class="result-status invalid">
+        <span class="status-dot"></span>
+        Verifica Fallita
+      </div>
+      <div class="result-invalid-body">
+        <div class="invalid-icon">✕</div>
+        <div class="invalid-title">${title}</div>
+        <p class="invalid-text">${message}</p>
+      </div>
+    </div>`;
+}
+
+function highlightInList(code) {
+  document.querySelectorAll('.patron-table tbody tr').forEach(row => {
+    row.classList.toggle('highlight-row', row.dataset.code === code);
+  });
+}
+
+// ============================================================
+// EVENT LISTENERS
+// ============================================================
+document.getElementById('searchBtn').addEventListener('click', () => {
+  const val = document.getElementById('codeInput').value.trim();
+  if (val) verifyCode(val);
+});
+
+document.getElementById('codeInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    const val = e.target.value.trim();
+    if (val) verifyCode(val);
+  }
+});
+
+// Auto-uppercase while typing
+document.getElementById('codeInput').addEventListener('input', (e) => {
+  e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '');
+});
+
+// ============================================================
+// INIT
+// ============================================================
+loadPatrons();
+</script>
+
+</body>
+</html>
