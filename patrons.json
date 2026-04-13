@@ -14,5 +14,13 @@
     "since": "Marzo 2026",
     "period": "2603",
     "active": true
+  },
+  {
+    "code": "QX7GQTU",
+    "tier": "E",
+    "months": 1,
+    "since": "Aprile 2026",
+    "period": "2604",
+    "active": true
   }
 ]
